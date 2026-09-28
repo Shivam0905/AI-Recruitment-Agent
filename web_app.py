@@ -273,21 +273,6 @@ if not st.session_state["authenticated"]:
                     st.session_state["user_email"] = email_val.strip().lower()
                     ensure_user_seeded(st.session_state["user_email"])
                     st.rerun()
-                    
-        st.markdown("<div style='text-align:center; color:#94A3B8; margin:1.2rem 0; font-size:0.88rem;'>— OR 1-CLICK DEMO LOGIN —</div>", unsafe_allow_html=True)
-        q1, q2 = st.columns(2)
-        with q1:
-            if st.button("👤 Sign In as Shivam (Gmail)", use_container_width=True):
-                st.session_state["authenticated"] = True
-                st.session_state["user_email"] = "shivam@gmail.com"
-                ensure_user_seeded("shivam@gmail.com")
-                st.rerun()
-        with q2:
-            if st.button("🏥 Sign In as Optum Recruiter", use_container_width=True):
-                st.session_state["authenticated"] = True
-                st.session_state["user_email"] = "recruiter@optum.com"
-                ensure_user_seeded("recruiter@optum.com")
-                st.rerun()
     st.stop()
 
 # Sidebar Configuration (Authenticated)
