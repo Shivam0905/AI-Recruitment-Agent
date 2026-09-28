@@ -38,8 +38,8 @@ def get_user_db_path(user_email: str) -> str:
     os.makedirs(user_dir, exist_ok=True)
     return os.path.join(user_dir, "candidates_database.csv")
 
-def save_user_candidate_data(user_email: str, candidate_name: str, email: str, phone_number: str, matching_keywords: str, screening_result: str, log_to_master: bool = False) -> str:
-    """Save candidate record strictly to the logged-in user's isolated database."""
+def save_user_candidate_data(user_email: str, candidate_name: str, email: str, phone_number: str, matching_keywords: str, screening_result: str) -> str:
+    """Save candidate record strictly to the logged-in user's database."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     filename = get_user_db_path(user_email)
     file_exists = os.path.isfile(filename)
@@ -50,43 +50,7 @@ def save_user_candidate_data(user_email: str, candidate_name: str, email: str, p
             writer.writerow(['Timestamp', 'Name', 'Email', 'Phone number', 'Matching Keywords', 'Screening Decision'])
         writer.writerow([timestamp, candidate_name, email, phone_number, matching_keywords, screening_result])
     
-    if log_to_master:
-        save_candidate_data(candidate_name, email, phone_number, matching_keywords, screening_result)
-    
-    return f"Saved to private workspace ({os.path.basename(filename)})"
-
-def ensure_user_seeded(user_email: str):
-    """Seed user database with an initial sample candidate if newly created."""
-    user_db = get_user_db_path(user_email)
-    if not os.path.exists(user_db):
-        email_lower = user_email.lower()
-        if "optum" in email_lower or "health" in email_lower:
-            save_user_candidate_data(
-                user_email=user_email,
-                candidate_name="Dr. Sarah Chen",
-                email="sarah.chen@optumhealth.example.com",
-                phone_number="(+1) 612-555-0142",
-                matching_keywords="Python, FHIR, HIPAA, Healthcare Analytics, SQL, PyTorch",
-                screening_result="HIRE"
-            )
-        elif "shivam" in email_lower:
-            save_user_candidate_data(
-                user_email=user_email,
-                candidate_name="Alex Mercer",
-                email="alex.mercer@techcorp.example.com",
-                phone_number="(+1) 415-555-0199",
-                matching_keywords="Assembly, C, C++, Python, WinDbg, Linux, Distributed Systems",
-                screening_result="HIRE"
-            )
-        else:
-            save_user_candidate_data(
-                user_email=user_email,
-                candidate_name="Jordan Lee",
-                email=f"candidate@{email_lower.split('@')[-1] if '@' in email_lower else 'example.com'}",
-                phone_number="(+1) 206-555-0188",
-                matching_keywords="Python, Docker, Kubernetes, AWS, REST API, Microservices",
-                screening_result="HIRE"
-            )
+    return f"Saved to database ({os.path.basename(filename)})"
 
 # Premium Modern CSS Styling
 st.markdown("""
@@ -271,7 +235,6 @@ if not st.session_state["authenticated"]:
                 else:
                     st.session_state["authenticated"] = True
                     st.session_state["user_email"] = email_val.strip().lower()
-                    ensure_user_seeded(st.session_state["user_email"])
                     st.rerun()
     st.stop()
 
@@ -283,7 +246,7 @@ with st.sidebar:
     
     st.markdown("#### 👤 **Active Recruiter**")
     st.markdown(f"**`{st.session_state['user_email']}`**")
-    st.caption("🔒 Private Isolated Workspace")
+    st.caption("Logged In")
     if st.button("🚪 Sign Out", use_container_width=True):
         st.session_state["authenticated"] = False
         st.session_state["user_email"] = ""
@@ -605,59 +568,27 @@ with tabs[0]:
 # TAB 2: CANDIDATE DATABASE & PRIVACY SHIELD
 # -------------------------------------------------------------
 with tabs[1]:
-    active_email = st.session_state.get("user_email", "recruiter@workspace.com")
+    active_email = st.session_state.get("user_email", "")
     safe_uid = re.sub(r'[^a-zA-Z0-9_.-]', '_', active_email.lower().strip())
     user_db_file = get_user_db_path(active_email)
     
-    st.markdown(f"### 📊 Candidate Audit Database · Recruiter Workspace (`{active_email}`)")
+    st.markdown("### 📊 Candidate Audit Database")
+    st.caption(f"Showing candidate records evaluated under your account: **`{active_email}`**")
     
-    # Enterprise Multi-Tenant Privacy Shield Notice
-    st.markdown(f"""
-    <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-left:4px solid #16A34A; padding:0.9rem 1.2rem; border-radius:8px; margin-bottom:1.2rem;">
-        <span style="font-weight:700; color:#166534;">🛡️ Isolated Multi-Tenant Workspace Active:</span>
-        <span style="color:#14532D; font-size:0.92rem;"> 
-            Logged in as <b>{active_email}</b>. You have exclusive access to your isolated database partition 
-            (<code>assets/users/{safe_uid}/candidates_database.csv</code>). 
-            Cross-tenant isolation ensures other recruiters cannot view, query, or leak your candidates.
-        </span>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    ctrl_col1, ctrl_col2 = st.columns([1.3, 1], gap="medium")
-    with ctrl_col1:
-        view_mode = st.radio(
-            "Database Workspace Scope:",
-            [
-                f"🔒 My Private Workspace ({active_email})",
-                "🗄️ Consolidated Audit Log (Admin Mode)"
-            ],
-            horizontal=False
-        )
-    with ctrl_col2:
-        mask_pii_enabled = st.checkbox(
-            "🎭 Enable PII De-Identification (Mask Email & Phone)", 
-            value=True, 
-            help="Masks candidate name, email, and phone numbers to comply with HIPAA, GDPR, and EEOC hiring fairness standards."
-        )
+    mask_pii_enabled = st.checkbox(
+        "🎭 Enable PII De-Identification (Mask Email & Phone)", 
+        value=False, 
+        help="Masks candidate email and phone numbers for privacy."
+    )
     
     df = pd.DataFrame()
-    if "My Private Workspace" in view_mode:
-        if os.path.exists(user_db_file):
-            try:
-                df = pd.read_csv(user_db_file)
-            except Exception as e:
-                st.error(f"Error reading private database: {e}")
-        else:
-            ensure_user_seeded(active_email)
-            if os.path.exists(user_db_file):
-                df = pd.read_csv(user_db_file)
-    else:
-        st.info("ℹ️ Consolidated Admin Log displays system-wide audit records across all accounts. Access restricted for compliance review.")
-        if os.path.exists(CSV_PATH):
-            try:
-                df = pd.read_csv(CSV_PATH)
-            except Exception as e:
-                st.error(f"Error reading local CSV database: {e}")
+    if os.path.exists(user_db_file):
+        try:
+            df = pd.read_csv(user_db_file)
+            if not df.empty and 'Name' in df.columns:
+                df = df.dropna(subset=['Name'])
+        except Exception as e:
+            st.error(f"Error reading candidate database: {e}")
                 
     if not df.empty:
         display_df = df.copy()
@@ -706,21 +637,20 @@ with tabs[1]:
         with d_col1:
             csv_bytes = display_df.to_csv(index=False).encode('utf-8')
             st.download_button(
-                label=f"📥 Export Workspace Database ({len(filtered_df)} records)",
+                label=f"📥 Export Database ({len(filtered_df)} records)",
                 data=csv_bytes,
                 file_name=f"candidates_{safe_uid}.csv",
                 mime="text/csv"
             )
         with d_col2:
-            if "My Private Workspace" in view_mode:
-                if st.button("🗑️ Reset My Workspace Data", help="Clears records in your private isolated workspace"):
-                    with open(user_db_file, mode='w', newline='', encoding='utf-8') as f:
-                        writer = csv.writer(f)
-                        writer.writerow(['Timestamp', 'Name', 'Email', 'Phone number', 'Matching Keywords', 'Screening Decision'])
-                    st.success("Workspace reset. Reloading...")
-                    st.rerun()
+            if st.button("🗑️ Clear My Database", help="Deletes all candidate records evaluated under your account"):
+                with open(user_db_file, mode='w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['Timestamp', 'Name', 'Email', 'Phone number', 'Matching Keywords', 'Screening Decision'])
+                st.success("Database cleared.")
+                st.rerun()
     else:
-        st.info(f"No candidate evaluations found yet in your private workspace ({active_email}). Screen a resume in Tab 1 to populate.")
+        st.info(f"ℹ️ No candidate evaluations yet for account: **{active_email}**. Go to Tab 1 ('Candidate Screening & Assessment') to screen a resume and populate your database.")
 
 # -------------------------------------------------------------
 # TAB 3: SYSTEM ARCHITECTURE & INTERVIEW PREPARATION
