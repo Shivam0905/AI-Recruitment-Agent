@@ -2,11 +2,15 @@ import os
 import csv
 from datetime import datetime
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+
 def save_candidate_data(candidate_name: str, email: str, phone_number: str, matching_keywords: str, screening_result: str) -> str:
     """Save candidate information and screening results to a CSV file."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    filename = "assets/candidates_database.csv"
+    os.makedirs(ASSETS_DIR, exist_ok=True)
+    filename = os.path.join(ASSETS_DIR, "candidates_database.csv")
     file_exists = os.path.isfile(filename)
     
     with open(filename, mode='a', newline='', encoding='utf-8') as file:

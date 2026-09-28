@@ -22,22 +22,22 @@ def register_functions(agents):
                 'description': "Read text from a file.",
                 'name': "read_text_from_file"
             },
+            {
+                'function': match_keywords,
+                'description': "Match keywords in a text against resume.",
+                'name': "match_keywords"
+            }
         ],
         'data_manager': [
             {
                 'function': extract_text_from_pdf,
                 'description': "Extract text from a PDF resume.",
-                'name': "extract_text_from_pdf_data_manager"
+                'name': "extract_text_from_pdf"
             },
             {
                 'function': save_candidate_data,
                 'description': "Save candidate data to CSV file.",
                 'name': "save_candidate_data"
-            },
-            {
-                'function': match_keywords,
-                'description': "Match keywords in a text.",
-                'name': "match_keywords"
             }
         ]
     }

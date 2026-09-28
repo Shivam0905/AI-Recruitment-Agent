@@ -48,12 +48,37 @@ OPENAI_API_KEY=your_openai_api_key
 
 ## Usage
 
-1. Place the candidate's resume in PDF format in the `assets/CV-English.pdf` file
-2. Add the job description in the `assets/job_description.txt` file
+### Option 1: Interactive Web Dashboard (Recommended)
+
+Run the Streamlit web application:
+
+```bash
+streamlit run web_app.py
+# or
+py -m streamlit run web_app.py
+```
+
+Then open your browser to `http://localhost:8501`.
+
+The web application allows you to:
+- Upload any candidate resume (PDF or DOCX) or use the sample resume
+- Paste any target job description
+- Visually inspect the multi-agent workflow:
+  - **Screening Assistant**: Match scores, matched skills, and HIRE/PASS decision
+  - **Data Manager**: Extracted contact details and CSV persistence status
+  - **Interview Assistant**: 5 targeted interview questions tailored to candidate gaps
+- View and export the live candidate database (`assets/candidates_database.csv`)
+
+### Option 2: Terminal / CLI Execution
+
+1. Place the candidate's resume in PDF format in `assets/CV-English.pdf`
+2. Add the job description in `assets/job_description.txt`
 3. Run the application:
 
 ```bash
 python app.py
+# or
+py app.py
 ```
 
 The application will:

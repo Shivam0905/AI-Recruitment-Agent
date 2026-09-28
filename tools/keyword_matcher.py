@@ -3,9 +3,12 @@ import spacy
 nlp = spacy.load("en_core_web_sm")
 
 def preprocess_text(text: str) -> str:
-    """Tokenize, remove stopwords, and lemmatize the text."""
-    doc = nlp(text.lower())  # Convert to lowercase
-    clean_tokens = [token.lemma_ for token in doc if not token.is_stop and token.is_alpha]
+    """Tokenize, remove stopwords, and lemmatize the text while preserving technical symbols (e.g., C++, C#, x86_64)."""
+    doc = nlp(text.lower())
+    clean_tokens = [
+        token.lemma_ for token in doc 
+        if not token.is_stop and (token.is_alpha or any(ch in token.text for ch in ['+', '#', '_', '-']) or token.is_digit)
+    ]
     return " ".join(clean_tokens).lower()
 
 def match_keywords(resume_text: str, keywords: list[str]) -> tuple[list[str], str]:

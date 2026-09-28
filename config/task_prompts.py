@@ -29,9 +29,14 @@ class TaskPrompts:
     @staticmethod
     def get_interview_task(screening_result):
         return f"""
-        Based on the previous screening conversation below, generate follow-up interview questions focusing on any identified skill gaps:
+        Based on the candidate screening assessment below:
 
         {screening_result.summary}
 
-        Generate 5 specific interview questions that will help assess the candidate's abilities in the areas where their resume showed potential gaps.
+        Generate 5 high-signal, practical technical interview questions targeting identified skill gaps and core competencies.
+        For each question, provide:
+        - Domain / Category & Difficulty Level
+        - Scenario-Based Technical Question
+        - Evaluation Criteria (Positive Technical Signals vs Red Flags)
+        - Follow-up Depth Probe
         """ 

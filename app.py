@@ -14,6 +14,17 @@ from config.agent_config import (
 
 load_dotenv()
 
+if not os.environ.get("OPENAI_API_KEY"):
+    print("=" * 70)
+    print("[!] NOTICE: OPENAI_API_KEY not found in environment or .env file.")
+    print("Launching complete recruitment pipeline in offline simulation mode...")
+    print("(To run with live OpenAI GPT-4o-mini agents, add OPENAI_API_KEY to your .env file)")
+    print("=" * 70 + "\n")
+    import demo_pipeline
+    demo_pipeline.run_demo()
+    import sys
+    sys.exit(0)
+
 screening_assistant = AssistantAgent(
     name="Screening Assistant",
     llm_config={
@@ -85,14 +96,14 @@ data_task = f"""
 First, use extract_text_from_pdf function to read the resume from assets/CV-English.pdf.
 Then, from the extracted text, find the candidate's name and email address.
 
-From the screening results below, extract the matching keywords using the match_keywords function and thedecision:
+From the screening results below, extract the matching keywords and the decision:
 
 {screening_result.summary}
 
 Once you have all the information, use the save_candidate_data function with the following parameters:
 - candidate_name: The full name from the resume
 - email: The email address from the resume
-- phone number: The phone number from the resume
+- phone_number: The phone number from the resume
 - matching_keywords: The keywords that matched from the screening results
 - screening_result: The final decision (HIRE or PASS) from the screening results
 
@@ -107,11 +118,15 @@ data_result = user_proxy.initiate_chat(
 
 # Execute second task: Generate interview questions
 interview_task = f"""
-Based on the previous screening conversation below, generate follow-up interview questions focusing on any identified skill gaps:
+Based on the previous screening conversation below, generate high-signal technical interview questions focusing on identified skill gaps and core competencies:
 
 {screening_result.summary}
 
-Generate 5 specific interview questions that will help assess the candidate's abilities in the areas where their resume showed potential gaps.
+Generate 5 specific, scenario-based technical questions. For each question provide:
+- Category & Difficulty Level
+- Scenario-based Question
+- Key Signals to Look For vs Red Flags
+- Follow-up Depth Probe
 """
 
 interview_result = user_proxy.initiate_chat(
