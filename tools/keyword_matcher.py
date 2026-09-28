@@ -1,6 +1,11 @@
 import spacy
 
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except Exception:
+    import spacy.cli
+    spacy.cli.download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 
 def preprocess_text(text: str) -> str:
     """Tokenize, remove stopwords, and lemmatize the text while preserving technical symbols (e.g., C++, C#, x86_64)."""
