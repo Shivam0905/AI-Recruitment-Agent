@@ -5,13 +5,6 @@ import tempfile
 import re
 import pandas as pd
 import streamlit as st
-from streamlit.runtime.scriptrunner import get_script_run_ctx
-
-# Auto-launch with Streamlit if executed directly with `python web_app.py`
-if __name__ == "__main__" and get_script_run_ctx() is None:
-    subprocess.run([sys.executable, "-m", "streamlit", "run", os.path.abspath(__file__)] + sys.argv[1:])
-    sys.exit(0)
-
 # Configure page layout
 st.set_page_config(
     page_title="TalentAgent AI | Autonomous Multi-Agent Hiring Platform",
@@ -102,6 +95,10 @@ st.markdown("""
     
     html, body, [class*="css"] {
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .stApp {
+        background-color: #F8FAFC !important;
+        color: #0F172A !important;
     }
     
     /* Hero Banner */
