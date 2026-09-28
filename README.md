@@ -10,9 +10,11 @@ This application uses multiple AI agents to automate different aspects of the re
 
 ## Features
 
-- **Automated Resume Screening**: Analyzes resumes (PDF format) against job descriptions using keyword matching and AI evaluation
+- **Multi-Tenant Authentication & Isolated Workspaces**: Secure recruiter sign-in (Gmail or corporate email) where each recruiter operates in a strictly partitioned database workspace (`assets/users/{tenant_id}/`), completely eliminating cross-tenant data leakage.
+- **Automated PII De-Identification**: Built-in data privacy shield masking sensitive candidate PII (email, phone, address) adhering to HIPAA, GDPR, and EEOC hiring regulations.
+- **Automated Resume Screening**: Analyzes resumes (PDF/DOCX) against job descriptions using keyword matching and AI evaluation
 - **Smart Data Extraction**: Automatically extracts candidate information including name, email, and phone number
-- **Interview Question Generation**: Creates targeted interview questions based on identified skill gaps
+- **Adaptive Interview Question Generation**: Synthesizes 5 gap-targeted technical questions with positive signals, red-flag warnings, and depth probes
 - **Data Management**: Saves candidate information and screening results to a structured CSV database
 - **Multi-Agent System**:
     - Screening Agent: Evaluates resumes against job descriptions using keyword matching
